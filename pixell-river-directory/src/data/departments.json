@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Finance",
+    "employees": [
+      { "firstName": "John", "lastName": "Smith" },
+      { "firstName": "Sarah", "lastName": "Johnson" }
+    ]
+  },
+  {
+    "name": "Human Resources",
+    "employees": [
+      { "firstName": "Emily", "lastName": "Brown" },
+      { "firstName": "Michael", "lastName": "Davis" }
+    ]
+  },
+  {
+    "name": "Information Technology",
+    "employees": [
+      { "firstName": "David", "lastName": "Wilson" },
+      { "firstName": "Jessica", "lastName": "Taylor" }
+    ]
+  }
+]
