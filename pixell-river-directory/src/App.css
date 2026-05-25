@@ -1,33 +1,37 @@
-.site-header {
-  background-color: #003366;
-  color: white;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 30px;
-}
-
-.logo {
-  width: 110px;
+.form-section {
   background-color: white;
-  padding: 10px;
-  border-radius: 12px;
-}
-
-main {
-  padding: 30px;
-}
-
-.department-card {
-  background-color: white;
+  margin: 30px;
   padding: 20px;
-  margin-bottom: 20px;
   border-radius: 8px;
 }
 
-footer {
+.form-section form {
+  display: grid;
+  gap: 15px;
+}
+
+.form-section label {
+  display: grid;
+  gap: 6px;
+  font-weight: bold;
+}
+
+.form-section input,
+.form-section select {
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.form-section button {
+  padding: 12px;
   background-color: #003366;
   color: white;
-  text-align: center;
-  padding: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
 }
