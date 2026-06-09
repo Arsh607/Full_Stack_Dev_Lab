@@ -1,37 +1,37 @@
-.form-section {
+.navbar {
+  background-color: #e9eef5;
+  padding: 15px 30px;
+  display: flex;
+  gap: 20px;
+}
+
+.navbar a {
+  color: #003366;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.navbar a.active {
+  text-decoration: underline;
+}
+
+.organization-section {
   background-color: white;
   margin: 30px;
   padding: 20px;
   border-radius: 8px;
 }
 
-.form-section form {
+.role-list {
   display: grid;
-  gap: 15px;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.form-section label {
-  display: grid;
-  gap: 6px;
-  font-weight: bold;
-}
-
-.form-section input,
-.form-section select {
-  padding: 10px;
-  font-size: 1rem;
-}
-
-.form-section button {
+.role-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
   padding: 12px;
-  background-color: #003366;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.error-message {
-  color: red;
-  font-weight: bold;
+  border-bottom: 1px solid #ddd;
 }
