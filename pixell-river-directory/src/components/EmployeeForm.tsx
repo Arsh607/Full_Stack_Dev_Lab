@@ -1,83 +1,82 @@
-import { useState } from "react";
-import type { Department, Employee } from "../types/Employee";
+import useFormInput from "../hooks/useFormInput";
+import { employeeService } from "../services/employeeService";
 
 interface EmployeeFormProps {
-  departments: Department[];
-  onAddEmployee: (departmentName: string, employee: Employee) => void;
+  onEmployeeCreated: () => void;
 }
 
-function EmployeeForm({ departments, onAddEmployee }: EmployeeFormProps) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [departmentName, setDepartmentName] = useState(departments[0]?.name || "");
-  const [validationMessage, setValidationMessage] = useState("");
+function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
+  const firstName = useFormInput("");
+  const lastName = useFormInput("");
+  const departmentName = useFormInput("");
+
+  const departments = employeeService.getDepartments();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setValidationMessage("");
+    firstName.setMessage("");
+    lastName.setMessage("");
+    departmentName.setMessage("");
 
-    if (firstName.trim().length < 3) {
-      setValidationMessage("First name must be at least 3 characters long.");
+    const result = employeeService.createEmployee(departmentName.value, {
+      firstName: firstName.value.trim(),
+      lastName: lastName.value.trim() || undefined,
+    });
+
+    if (!result.success) {
+      firstName.setMessage(result.errors?.firstName || "");
+      departmentName.setMessage(result.errors?.department || "");
       return;
     }
 
-    if (!departmentName) {
-      setValidationMessage("Please select a department.");
-      return;
-    }
+    firstName.reset();
+    lastName.reset();
+    departmentName.reset();
 
-    const newEmployee: Employee = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim() || undefined,
-    };
-
-    onAddEmployee(departmentName, newEmployee);
-
-    setFirstName("");
-    setLastName("");
-    setDepartmentName(departments[0]?.name || "");
+    onEmployeeCreated();
   };
 
   return (
     <section className="form-section">
       <h2>Add New Employee</h2>
 
-      {validationMessage && (
-        <p className="error-message">{validationMessage}</p>
-      )}
-
       <form onSubmit={handleSubmit}>
         <label>
           First Name
           <input
             type="text"
-            value={firstName}
-            onChange={(event) => setFirstName(event.target.value)}
+            value={firstName.value}
+            onChange={(event) => firstName.setValue(event.target.value)}
           />
+          {firstName.message && <p className="error-message">{firstName.message}</p>}
         </label>
 
         <label>
           Last Name
           <input
             type="text"
-            value={lastName}
-            onChange={(event) => setLastName(event.target.value)}
+            value={lastName.value}
+            onChange={(event) => lastName.setValue(event.target.value)}
           />
         </label>
 
         <label>
           Department
           <select
-            value={departmentName}
-            onChange={(event) => setDepartmentName(event.target.value)}
+            value={departmentName.value}
+            onChange={(event) => departmentName.setValue(event.target.value)}
           >
+            <option value="">Select a department</option>
             {departments.map((department) => (
               <option key={department.name} value={department.name}>
                 {department.name}
               </option>
             ))}
           </select>
+          {departmentName.message && (
+            <p className="error-message">{departmentName.message}</p>
+          )}
         </label>
 
         <button type="submit">Add Employee</button>

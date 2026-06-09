@@ -1,31 +1,22 @@
 import { useState } from "react";
 import MainContent from "../components/MainContent";
 import EmployeeForm from "../components/EmployeeForm";
-import departmentData from "../data/departments.json";
-import type { Department, Employee } from "../types/Employee";
+import { employeeService } from "../services/employeeService";
+import type { Department } from "../types/Employee";
 
 function EmployeesPage() {
-  const [departments, setDepartments] = useState<Department[]>(departmentData);
+  const [departments, setDepartments] = useState<Department[]>(
+    employeeService.getDepartments()
+  );
 
-  const addEmployee = (departmentName: string, employee: Employee) => {
-    const updatedDepartments = departments.map((department) => {
-      if (department.name === departmentName) {
-        return {
-          ...department,
-          employees: [...department.employees, employee],
-        };
-      }
-
-      return department;
-    });
-
-    setDepartments(updatedDepartments);
+  const refreshDepartments = () => {
+    setDepartments([...employeeService.getDepartments()]);
   };
 
   return (
     <>
       <MainContent departments={departments} />
-      <EmployeeForm departments={departments} onAddEmployee={addEmployee} />
+      <EmployeeForm onEmployeeCreated={refreshDepartments} />
     </>
   );
 }
