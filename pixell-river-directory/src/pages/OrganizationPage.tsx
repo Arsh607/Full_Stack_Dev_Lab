@@ -1,8 +1,14 @@
-import roles from "../data/roles.json";
+import { useState } from "react";
+import RoleForm from "../components/RoleForm";
+import { roleService } from "../services/roleService";
 import type { Role } from "../types/Role";
 
 function OrganizationPage() {
-  const roleData: Role[] = roles;
+  const [roles, setRoles] = useState<Role[]>(roleService.getRoles());
+
+  const refreshRoles = () => {
+    setRoles([...roleService.getRoles()]);
+  };
 
   return (
     <main>
@@ -10,8 +16,11 @@ function OrganizationPage() {
         <h2>Leadership and Management</h2>
 
         <div className="role-list">
-          {roleData.map((person) => (
-            <div className="role-card" key={`${person.firstName}-${person.lastName}`}>
+          {roles.map((person) => (
+            <div
+              className="role-card"
+              key={`${person.firstName}-${person.lastName}-${person.role}`}
+            >
               <span>
                 {person.firstName} {person.lastName}
               </span>
@@ -20,6 +29,8 @@ function OrganizationPage() {
           ))}
         </div>
       </section>
+
+      <RoleForm onRoleCreated={refreshRoles} />
     </main>
   );
 }
