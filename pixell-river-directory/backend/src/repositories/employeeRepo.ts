@@ -1,44 +1,48 @@
-import type { Department, Employee } from "../types/Employee.ts";
-
-let departments: Department[] = [
-  {
-    name: "Finance",
-    employees: [
-      { firstName: "John", lastName: "Smith" },
-      { firstName: "Sarah", lastName: "Johnson" },
-    ],
-  },
-  {
-    name: "Human Resources",
-    employees: [
-      { firstName: "Emily", lastName: "Brown" },
-      { firstName: "Michael", lastName: "Davis" },
-    ],
-  },
-  {
-    name: "Information Technology",
-    employees: [
-      { firstName: "David", lastName: "Wilson" },
-      { firstName: "Jessica", lastName: "Taylor" },
-    ],
-  },
-];
+import { prisma } from "../lib/prisma";
+import type { Department, Employee } from "../types/Employee";
 
 export const employeeRepo = {
-  getDepartments(): Department[] {
-    return departments;
+  async getDepartments(): Promise<Department[]> {
+    const departments = await prisma.department.findMany({
+      include: {
+        employees: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    return departments.map((department) => ({
+      name: department.name,
+      employees: department.employees.map((employee) => ({
+        firstName: employee.firstName,
+        lastName: employee.lastName || undefined,
+      })),
+    }));
   },
 
-  createEmployee(departmentName: string, employee: Employee): Department[] {
-    departments = departments.map((department) =>
-      department.name === departmentName
-        ? {
-            ...department,
-            employees: [...department.employees, employee],
-          }
-        : department
-    );
+  async createEmployee(
+    departmentName: string,
+    employee: Employee
+  ): Promise<Department[]> {
+    const department = await prisma.department.findUnique({
+      where: {
+        name: departmentName,
+      },
+    });
 
-    return departments;
+    if (!department) {
+      throw new Error("Department does not exist.");
+    }
+
+    await prisma.employee.create({
+      data: {
+        firstName: employee.firstName,
+        lastName: employee.lastName || null,
+        departmentId: department.id,
+      },
+    });
+
+    return this.getDepartments();
   },
 };

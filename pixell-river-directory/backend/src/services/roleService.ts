@@ -12,11 +12,11 @@ interface CreateRoleResult {
 }
 
 export const roleService = {
-  getRoles(): Role[] {
-    return roleRepo.getRoles();
+  async getRoles(): Promise<Role[]> {
+    return await roleRepo.getRoles();
   },
 
-  createRole(newRole: Role): CreateRoleResult {
+  async createRole(newRole: Role): Promise<CreateRoleResult> {
     const errors: CreateRoleResult["errors"] = {};
 
     if (!newRole.firstName || newRole.firstName.trim().length < 3) {
@@ -31,12 +31,12 @@ export const roleService = {
       errors.role = "Role is required.";
     }
 
-    const roleAlreadyExists = roleRepo
-      .getRoles()
-      .some(
-        (person) =>
-          person.role.toLowerCase() === newRole.role.trim().toLowerCase()
-      );
+    const roles = await roleRepo.getRoles();
+
+    const roleAlreadyExists = roles.some(
+      (person) =>
+        person.role.toLowerCase() === newRole.role.trim().toLowerCase()
+    );
 
     if (roleAlreadyExists) {
       errors.role = "This role is already occupied.";
@@ -49,7 +49,7 @@ export const roleService = {
       };
     }
 
-    const updatedRoles = roleRepo.createRole({
+    const updatedRoles = await roleRepo.createRole({
       firstName: newRole.firstName.trim(),
       lastName: newRole.lastName.trim(),
       role: newRole.role.trim(),
