@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import useFormInput from "../hooks/useFormInput";
 import { employeeService } from "../services/employeeService";
+import type { Department } from "../types/Employee";
 
 interface EmployeeFormProps {
-  onEmployeeCreated: () => void;
+  onEmployeeCreated: () => Promise<void>;
 }
 
 function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
@@ -10,31 +12,48 @@ function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
   const lastName = useFormInput("");
   const departmentName = useFormInput("");
 
-  const departments = employeeService.getDepartments();
+  const [departments, setDepartments] = useState<Department[]>([]);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const loadDepartments = async () => {
+      const data = await employeeService.getDepartments();
+      setDepartments(data);
+    };
+
+    loadDepartments();
+  }, []);
+
+  const handleSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
 
     firstName.setMessage("");
     lastName.setMessage("");
     departmentName.setMessage("");
 
-    const result = employeeService.createEmployee(departmentName.value, {
-      firstName: firstName.value.trim(),
-      lastName: lastName.value.trim() || undefined,
-    });
+    try {
+      await employeeService.createEmployee(departmentName.value, {
+        firstName: firstName.value.trim(),
+        lastName: lastName.value.trim() || undefined,
+      });
 
-    if (!result.success) {
-      firstName.setMessage(result.errors?.firstName || "");
-      departmentName.setMessage(result.errors?.department || "");
-      return;
+      firstName.reset();
+      lastName.reset();
+      departmentName.reset();
+
+      await onEmployeeCreated();
+    } catch (error: unknown) {
+      const apiError = error as {
+        errors?: {
+          firstName?: string;
+          department?: string;
+        };
+      };
+
+      firstName.setMessage(apiError.errors?.firstName || "");
+      departmentName.setMessage(apiError.errors?.department || "");
     }
-
-    firstName.reset();
-    lastName.reset();
-    departmentName.reset();
-
-    onEmployeeCreated();
   };
 
   return (
@@ -49,7 +68,10 @@ function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
             value={firstName.value}
             onChange={(event) => firstName.setValue(event.target.value)}
           />
-          {firstName.message && <p className="error-message">{firstName.message}</p>}
+
+          {firstName.message && (
+            <p className="error-message">{firstName.message}</p>
+          )}
         </label>
 
         <label>
@@ -65,17 +87,23 @@ function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
           Department
           <select
             value={departmentName.value}
-            onChange={(event) => departmentName.setValue(event.target.value)}
+            onChange={(event) =>
+              departmentName.setValue(event.target.value)
+            }
           >
             <option value="">Select a department</option>
+
             {departments.map((department) => (
               <option key={department.name} value={department.name}>
                 {department.name}
               </option>
             ))}
           </select>
+
           {departmentName.message && (
-            <p className="error-message">{departmentName.message}</p>
+            <p className="error-message">
+              {departmentName.message}
+            </p>
           )}
         </label>
 

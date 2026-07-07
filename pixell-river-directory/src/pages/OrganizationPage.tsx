@@ -1,14 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import RoleForm from "../components/RoleForm";
 import { roleService } from "../services/roleService";
 import type { Role } from "../types/Role";
 
 function OrganizationPage() {
-  const [roles, setRoles] = useState<Role[]>(roleService.getRoles());
+  const [roles, setRoles] = useState<Role[]>([]);
 
-  const refreshRoles = () => {
-    setRoles([...roleService.getRoles()]);
+  const refreshRoles = async () => {
+    const data = await roleService.getRoles();
+    setRoles(data);
   };
+
+  useEffect(() => {
+    refreshRoles();
+  }, []);
 
   return (
     <main>

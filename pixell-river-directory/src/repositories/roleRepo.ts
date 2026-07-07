@@ -1,15 +1,28 @@
-import roleData from "../data/roles.json";
 import type { Role } from "../types/Role";
 
-let roles: Role[] = roleData;
+const API_URL = "http://localhost:5001/api/roles";
 
 export const roleRepo = {
-  getRoles(): Role[] {
-    return roles;
+  async getRoles(): Promise<Role[]> {
+    const response = await fetch(API_URL);
+    return response.json();
   },
 
-  createRole(newRole: Role): Role[] {
-    roles = [...roles, newRole];
-    return roles;
+  async createRole(role: Role): Promise<Role[]> {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(role),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw result;
+    }
+
+    return result.roles;
   },
 };

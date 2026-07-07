@@ -1,7 +1,7 @@
 import useRoleForm from "../hooks/useRoleForm";
 
 interface RoleFormProps {
-  onRoleCreated: () => void;
+  onRoleCreated: () => Promise<void>;
 }
 
 function RoleForm({ onRoleCreated }: RoleFormProps) {

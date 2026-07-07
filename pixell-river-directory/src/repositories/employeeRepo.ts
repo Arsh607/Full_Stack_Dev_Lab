@@ -1,23 +1,31 @@
-import departmentData from "../data/departments.json";
 import type { Department, Employee } from "../types/Employee";
 
-let departments: Department[] = departmentData;
+const API_URL = "http://localhost:5001/api/employees";
 
 export const employeeRepo = {
-  getDepartments(): Department[] {
-    return departments;
+  async getDepartments(): Promise<Department[]> {
+    const response = await fetch(API_URL);
+    return response.json();
   },
 
-  createEmployee(departmentName: string, employee: Employee): Department[] {
-    departments = departments.map((department) =>
-      department.name === departmentName
-        ? {
-            ...department,
-            employees: [...department.employees, employee],
-          }
-        : department
-    );
+  async createEmployee(
+    departmentName: string,
+    employee: Employee
+  ): Promise<Department[]> {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ departmentName, employee }),
+    });
 
-    return departments;
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw result;
+    }
+
+    return result.departments;
   },
 };

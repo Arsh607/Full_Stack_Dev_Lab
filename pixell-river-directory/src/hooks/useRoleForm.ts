@@ -2,7 +2,7 @@ import { useState } from "react";
 import { roleService } from "../services/roleService";
 import type { Role } from "../types/Role";
 
-function useRoleForm(onRoleCreated: () => void) {
+function useRoleForm(onRoleCreated: () => Promise<void>) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("");
@@ -10,7 +10,7 @@ function useRoleForm(onRoleCreated: () => void) {
   const [firstNameError, setFirstNameError] = useState("");
   const [roleError, setRoleError] = useState("");
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setFirstNameError("");
@@ -22,19 +22,25 @@ function useRoleForm(onRoleCreated: () => void) {
       role: role.trim(),
     };
 
-    const result = roleService.createRole(newRole);
+    try {
+      await roleService.createRole(newRole);
 
-    if (!result.success) {
-      setFirstNameError(result.errors?.firstName || "");
-      setRoleError(result.errors?.role || "");
-      return;
+      setFirstName("");
+      setLastName("");
+      setRole("");
+
+      await onRoleCreated();
+    } catch (error: unknown) {
+      const apiError = error as {
+        errors?: {
+          firstName?: string;
+          role?: string;
+        };
+      };
+
+      setFirstNameError(apiError.errors?.firstName || "");
+      setRoleError(apiError.errors?.role || "");
     }
-
-    setFirstName("");
-    setLastName("");
-    setRole("");
-
-    onRoleCreated();
   };
 
   return {
