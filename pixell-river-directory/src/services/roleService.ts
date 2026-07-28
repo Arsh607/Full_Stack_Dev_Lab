@@ -3,10 +3,10 @@ import { roleRepo } from "../repositories/roleRepo";
 
 export const roleService = {
   async getRoles(): Promise<Role[]> {
-    return await roleRepo.getRoles();
+    return roleRepo.getRoles();
   },
 
-  async createRole(newRole: Role): Promise<Role[]> {
-    return await roleRepo.createRole(newRole);
+  async createRole(newRole: Role, token: string): Promise<Role[]> {
+    return roleRepo.createRole(newRole, token);
   },
 };

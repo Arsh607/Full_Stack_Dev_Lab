@@ -4,7 +4,9 @@ interface RoleFormProps {
   onRoleCreated: () => Promise<void>;
 }
 
-function RoleForm({ onRoleCreated }: RoleFormProps) {
+function RoleForm({
+  onRoleCreated,
+}: RoleFormProps) {
   const roleForm = useRoleForm(onRoleCreated);
 
   return (
@@ -17,10 +19,15 @@ function RoleForm({ onRoleCreated }: RoleFormProps) {
           <input
             type="text"
             value={roleForm.firstName}
-            onChange={(event) => roleForm.setFirstName(event.target.value)}
+            onChange={(event) =>
+              roleForm.setFirstName(event.target.value)
+            }
           />
+
           {roleForm.firstNameError && (
-            <p className="error-message">{roleForm.firstNameError}</p>
+            <p className="error-message">
+              {roleForm.firstNameError}
+            </p>
           )}
         </label>
 
@@ -29,8 +36,16 @@ function RoleForm({ onRoleCreated }: RoleFormProps) {
           <input
             type="text"
             value={roleForm.lastName}
-            onChange={(event) => roleForm.setLastName(event.target.value)}
+            onChange={(event) =>
+              roleForm.setLastName(event.target.value)
+            }
           />
+
+          {roleForm.lastNameError && (
+            <p className="error-message">
+              {roleForm.lastNameError}
+            </p>
+          )}
         </label>
 
         <label>
@@ -38,10 +53,15 @@ function RoleForm({ onRoleCreated }: RoleFormProps) {
           <input
             type="text"
             value={roleForm.role}
-            onChange={(event) => roleForm.setRole(event.target.value)}
+            onChange={(event) =>
+              roleForm.setRole(event.target.value)
+            }
           />
+
           {roleForm.roleError && (
-            <p className="error-message">{roleForm.roleError}</p>
+            <p className="error-message">
+              {roleForm.roleError}
+            </p>
           )}
         </label>
 

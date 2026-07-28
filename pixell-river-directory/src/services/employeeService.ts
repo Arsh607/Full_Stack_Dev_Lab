@@ -3,13 +3,14 @@ import { employeeRepo } from "../repositories/employeeRepo";
 
 export const employeeService = {
   async getDepartments(): Promise<Department[]> {
-    return await employeeRepo.getDepartments();
+    return employeeRepo.getDepartments();
   },
 
   async createEmployee(
     departmentName: string,
-    employee: Employee
+    employee: Employee,
+    token: string
   ): Promise<Department[]> {
-    return await employeeRepo.createEmployee(departmentName, employee);
+    return employeeRepo.createEmployee(departmentName, employee, token);
   },
 };

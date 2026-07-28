@@ -1,27 +1,22 @@
-import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/react";
 import useFormInput from "../hooks/useFormInput";
 import { employeeService } from "../services/employeeService";
 import type { Department } from "../types/Employee";
 
 interface EmployeeFormProps {
+  departments: Department[];
   onEmployeeCreated: () => Promise<void>;
 }
 
-function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
+function EmployeeForm({
+  departments,
+  onEmployeeCreated,
+}: EmployeeFormProps) {
   const firstName = useFormInput("");
   const lastName = useFormInput("");
   const departmentName = useFormInput("");
 
-  const [departments, setDepartments] = useState<Department[]>([]);
-
-  useEffect(() => {
-    const loadDepartments = async () => {
-      const data = await employeeService.getDepartments();
-      setDepartments(data);
-    };
-
-    loadDepartments();
-  }, []);
+  const { getToken } = useAuth();
 
   const handleSubmit = async (
     event: React.FormEvent<HTMLFormElement>
@@ -33,10 +28,23 @@ function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
     departmentName.setMessage("");
 
     try {
-      await employeeService.createEmployee(departmentName.value, {
-        firstName: firstName.value.trim(),
-        lastName: lastName.value.trim() || undefined,
-      });
+      const token = await getToken();
+
+      if (!token) {
+        departmentName.setMessage(
+          "You must be logged in to add an employee."
+        );
+        return;
+      }
+
+      await employeeService.createEmployee(
+        departmentName.value,
+        {
+          firstName: firstName.value.trim(),
+          lastName: lastName.value.trim() || undefined,
+        },
+        token
+      );
 
       firstName.reset();
       lastName.reset();
@@ -49,10 +57,18 @@ function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
           firstName?: string;
           department?: string;
         };
+        message?: string;
       };
 
-      firstName.setMessage(apiError.errors?.firstName || "");
-      departmentName.setMessage(apiError.errors?.department || "");
+      firstName.setMessage(
+        apiError.errors?.firstName || ""
+      );
+
+      departmentName.setMessage(
+        apiError.errors?.department ||
+          apiError.message ||
+          "Unable to add employee."
+      );
     }
   };
 
@@ -66,11 +82,15 @@ function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
           <input
             type="text"
             value={firstName.value}
-            onChange={(event) => firstName.setValue(event.target.value)}
+            onChange={(event) =>
+              firstName.setValue(event.target.value)
+            }
           />
 
           {firstName.message && (
-            <p className="error-message">{firstName.message}</p>
+            <p className="error-message">
+              {firstName.message}
+            </p>
           )}
         </label>
 
@@ -79,7 +99,9 @@ function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
           <input
             type="text"
             value={lastName.value}
-            onChange={(event) => lastName.setValue(event.target.value)}
+            onChange={(event) =>
+              lastName.setValue(event.target.value)
+            }
           />
         </label>
 
@@ -94,7 +116,10 @@ function EmployeeForm({ onEmployeeCreated }: EmployeeFormProps) {
             <option value="">Select a department</option>
 
             {departments.map((department) => (
-              <option key={department.name} value={department.name}>
+              <option
+                key={department.name}
+                value={department.name}
+              >
                 {department.name}
               </option>
             ))}

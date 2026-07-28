@@ -1,43 +1,39 @@
 import { useEffect, useState } from "react";
-import RoleForm from "../components/RoleForm";
-import { roleService } from "../services/roleService";
-import type { Role } from "../types/Role";
+import { Show } from "@clerk/react";
+import MainContent from "../components/MainContent";
+import EmployeeForm from "../components/EmployeeForm";
+import LoginRequired from "../components/LoginRequired";
+import { employeeService } from "../services/employeeService";
+import type { Department } from "../types/Employee";
 
-function OrganizationPage() {
-  const [roles, setRoles] = useState<Role[]>([]);
+function EmployeesPage() {
+  const [departments, setDepartments] = useState<Department[]>([]);
 
-  const refreshRoles = async () => {
-    const data = await roleService.getRoles();
-    setRoles(data);
+  const refreshDepartments = async () => {
+    const data = await employeeService.getDepartments();
+    setDepartments(data);
   };
 
   useEffect(() => {
-    refreshRoles();
+    void refreshDepartments();
   }, []);
 
   return (
-    <main>
-      <section className="organization-section">
-        <h2>Leadership and Management</h2>
+    <>
+      <MainContent departments={departments} />
 
-        <div className="role-list">
-          {roles.map((person) => (
-            <div
-              className="role-card"
-              key={`${person.firstName}-${person.lastName}-${person.role}`}
-            >
-              <span>
-                {person.firstName} {person.lastName}
-              </span>
-              <strong>{person.role}</strong>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Show when="signed-in">
+        <EmployeeForm
+          departments={departments}
+          onEmployeeCreated={refreshDepartments}
+        />
+      </Show>
 
-      <RoleForm onRoleCreated={refreshRoles} />
-    </main>
+      <Show when="signed-out">
+        <LoginRequired />
+      </Show>
+    </>
   );
 }
 
-export default OrganizationPage;
+export default EmployeesPage;
